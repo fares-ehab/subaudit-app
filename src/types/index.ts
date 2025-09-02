@@ -4,6 +4,7 @@ import { ReactNode } from "react";
 
 export interface Subscription {
   id: string;
+  user_id: string;
   name: string;
   cost: number;
   billing_cycle: "weekly" | "monthly" | "yearly";
@@ -13,14 +14,14 @@ export interface Subscription {
   currency: string;
   is_paused?: boolean;
   is_active: boolean;
-  cancellation_date?: string | null;
-  is_favorite?: boolean; 
-  last_used_date?: string | null;
-  value_rating?: number | null;
+  cancellation_date: string | null;
+  is_favorite: boolean; 
+  last_used_date: string | null;
+  value_rating: number | null;
   created_at: string; 
-  updated_at?: string;
-  cancellation_reason?: string;
-  notes?: string;
+  updated_at:string | null;
+  cancellation_reason:string | null;
+  notes:string | null;
   price_history?: { date: string; cost: number }[];
 }
 
@@ -30,8 +31,7 @@ export interface SubscriptionFormData {
   cost: number;
   category: string;
   billing_cycle: "weekly" | "monthly" | "yearly";
-  start_date: string;
-  renewal_date: string;
+   next_renewal_date: string;
   is_active: boolean;
   is_paused?: boolean;   // 👈 NEW
   cancellation_date?: string;
@@ -74,7 +74,7 @@ export interface Notification {
   title: string;
   message: string;
   is_read: boolean;
-  action_url?: string;
+  action_url?: string | null;
 }
 
 // --- FIX: Added NotificationLog type ---
@@ -82,11 +82,11 @@ export interface NotificationLog {
     id: string;
     subscription_id: string;
     user_id: string;
-    notification_type: 'renewal_reminder' | 'value_check';
+    notification_type: 'renewal_reminder' | 'value_check'| null;
     sent_at: string;
-    user_response?: 'keep' | 'cancel';
-    response_at?: string;
-    subscriptions?: Subscription; // For joined data
+    user_response?: 'keep' | 'cancel' | null;
+    response_at?: string | null;
+    subscriptions?:LightweightSubscription; // For joined data
 }
 
 // --- Bank Integration ---
@@ -135,4 +135,19 @@ export interface SmartRecommendation {
     last_used_date: string;
     usage_frequency: 'low' | 'medium' | 'high';
     cost_per_use: number | null; };
+}
+
+type LightweightSubscription = Pick<
+  Subscription,
+  "id" | "name" | "cost" | "billing_cycle" | "next_renewal_date"
+>;
+
+export interface PlaidTransaction {
+  account_id: string;
+  amount: number;
+  date: string;
+  name: string;
+  merchant_name?: string;
+  category: string[];
+  transaction_id: string;
 }

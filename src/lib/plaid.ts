@@ -1,26 +1,7 @@
+import { DetectedSubscription, PlaidTransaction } from '../types';
 import { supabase } from './supabase';
 
 // --- Types ---
-export interface PlaidTransaction {
-  account_id: string;
-  amount: number;
-  date: string;
-  name: string;
-  merchant_name?: string;
-  category: string[];
-  transaction_id: string;
-}
-
-export interface DetectedSubscription {
-  merchant_name: string;
-  amount: number;
-  frequency: 'monthly' | 'yearly' | 'weekly';
-  category: string;
-  confidence: number;
-  transactions: PlaidTransaction[];
-  last_payment_date: string; // Added for consistency
-}
-
 /**
  * Simulates initializing Plaid Link for bank account connection.
  */
@@ -99,6 +80,7 @@ const detectRecurringPayments = (transactions: PlaidTransaction[]): DetectedSubs
       const category = categorizeMerchant(merchant);
       
       detectedSubscriptions.push({
+        id: crypto.randomUUID(),
         merchant_name: merchant,
         amount: avgAmount,
         frequency,

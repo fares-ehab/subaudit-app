@@ -51,13 +51,14 @@ export const useNotifications = () => {
 
   const clearAll = async () => {
     try {
-      // Assuming you will add a `clearAllNotifications` function to your lib
-      // await clearAllNotifications(); 
-      setNotifications([]); // Optimistically clear UI
+      // --- THIS IS THE FIX ---
+      await clearAllNotifications(); // <-- STEP 2: CALL THE REAL FUNCTION
+      
+      setNotifications([]); // Optimistically clear the UI immediately
       toast.success('All notifications cleared.');
     } catch (error) {
       toast.error('Failed to clear notifications.');
-    }
+  }
   };
 
   return {

@@ -40,6 +40,7 @@ export const generateSmartRecommendations = async (): Promise<SmartRecommendatio
             message: `You rated this subscription ${sub.value_rating}/5 stars. Canceling it could save you money.`,
             action_recommended: 'cancel',
             confidence: 0.90,
+            type: 'low_value',
             reasoning: {
                 last_used_date: '',
                 usage_frequency: 'high',
@@ -65,6 +66,7 @@ export const generateSmartRecommendations = async (): Promise<SmartRecommendatio
                     title: `Review ${category} Category`,
                     message: `You have ${count} subscriptions in this category. Could you consolidate them?`,
                     action_recommended: 'review',
+                    type: 'duplicate_category',
                     confidence: 0.85,
                     reasoning: {
                         last_used_date: '',
@@ -74,25 +76,6 @@ export const generateSmartRecommendations = async (): Promise<SmartRecommendatio
                 });
             }
         }
-    });
-    
-    // 3. Keep high-value subscriptions
-    const highValueSubs = subscriptions.filter(s => s.value_rating && s.value_rating >= 4);
-    highValueSubs.forEach(sub => {
-        recommendations.push({
-            id: `rec-${sub.id}-keep`,
-            subscription_id: sub.id,
-            priority: 'low',
-            title: `Keep ${sub.name}`,
-            message: "Your usage is consistent and provides good value for the cost.",
-            action_recommended: 'keep',
-            confidence: 0.98,
-            reasoning: {
-                last_used_date: '',
-                usage_frequency: 'high',
-                cost_per_use: null
-            }
-        });
     });
 
     return recommendations;

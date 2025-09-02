@@ -131,3 +131,18 @@ export const markAllNotificationsAsRead = async (): Promise<void> => {
     throw error;
   }
 };
+
+export const clearAllNotifications = async (): Promise<void> => {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return; // If no user, do nothing
+
+  const { error } = await supabase
+    .from('notifications')
+    .delete() // Use the delete method
+    .eq('user_id', user.id); // Only delete for the current user
+
+  if (error) {
+    console.error("Error clearing notifications:", error);
+    throw error;
+  }
+};

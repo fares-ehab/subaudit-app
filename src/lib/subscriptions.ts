@@ -157,7 +157,7 @@ export const cancelSubscription = async (id: string): Promise<Subscription> => {
  * (make sure these columns exist in your DB!)
  */
 export const updateSubscriptionRating = async (
-id: string, rating: number, lastUsedDate?: string, notes?: string, cancellationReason?: string): Promise<Subscription> => {
+id: string, rating: number, lastUsedDate?: string, _notes?: string, _cancellationReason?: string): Promise<Subscription> => {
   if (rating < 1 || rating > 5) {
     throw new Error("Rating must be between 1 and 5");
   }
@@ -197,7 +197,7 @@ export const renewSubscription = async (subscription: Subscription): Promise<Sub
   } else if (subscription.billing_cycle === 'yearly') {
     nextRenewal = addYears(currentRenewal, 1);
   } else if (subscription.billing_cycle === 'weekly') {
-    nextRenewal = addWeeks(currentRenewal, 7);
+    nextRenewal = addWeeks(currentRenewal, 1);
   } else {
     throw new Error("Invalid billing cycle.");
   }

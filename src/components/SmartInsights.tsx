@@ -122,7 +122,7 @@ const RecommendationCard: React.FC<{
         </div>
         <div className="flex items-center space-x-2">
             <Link to="#" className={`px-4 py-2 rounded-lg text-sm font-semibold text-white ${info.color === 'red' ? 'bg-red-600' : 'bg-indigo-600'} hover:opacity-90`}>
-                {info.action}
+                {info.actionText}
             </Link>
         </div>
       </div>

@@ -19,7 +19,7 @@ export const useBankIntegration = () => {
       if (detected.length > 0) {
         toast.success(`Found ${detected.length} potential subscriptions!`);
       } else {
-        toast.info('No new recurring subscriptions were detected.');
+        toast ('No new recurring subscriptions were detected.');
       }
     } catch (error) {
       toast.error('Failed to connect bank account.');

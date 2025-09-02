@@ -94,10 +94,6 @@ export const useSubscriptions = (filters: any) => {
     }
   }, []);
 
-  useEffect(() => {
-    fetchSubscriptions();
-  }, [fetchSubscriptions]);
-
  useEffect(() => {
     fetchSubscriptions();
   }, [fetchSubscriptions]);

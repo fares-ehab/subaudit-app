@@ -30,7 +30,7 @@ const EmptyState: React.FC<EmptyStateProps> = ({ onAddSubscription, hasSubscript
   const itemVariants = {
     hidden: { opacity: 0, y: 15 },
     visible: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 100 } },
-  };
+  } as const;
 
   return (
     <>
