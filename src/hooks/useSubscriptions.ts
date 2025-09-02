@@ -3,7 +3,7 @@ import { supabase } from '../lib/supabase';
 import { Subscription, Insight } from '../types';
 import { subMonths, isSameMonth, isSameYear, format, differenceInDays, parseISO, startOfWeek, addDays, subWeeks } from 'date-fns';
 import {  SubscriptionFormData } from '../types';
-
+import { toast } from 'react-hot-toast';
 
 // --- NEW: Define plan limits in one place ---
 const PLAN_LIMITS = {

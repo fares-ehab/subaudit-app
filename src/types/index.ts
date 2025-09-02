@@ -15,7 +15,7 @@ export interface Subscription {
   is_paused?: boolean;
   is_active: boolean;
   cancellation_date: string | null;
-  is_favorite: boolean; 
+  is_favorite?: boolean; 
   last_used_date: string | null;
   value_rating: number | null;
   created_at: string; 

@@ -92,3 +92,4 @@ export const useAuth = () => {
 
   return { user, profile, loading };
 };
+
