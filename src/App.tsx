@@ -2,7 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 
-import { useAuth } from './hooks/useAuth';
+import { useAuth } from './contexts/AuthProvider'
 import Layout from './components/Layout';
 import Dashboard from './components/Dashboard';
 import NotificationCenter from './components/NotificationCenter';
@@ -15,6 +15,9 @@ import RenewalsPage from './components/RenewalsPage';
 import ReportsPage from './components/ReportsPage';
 import SubscriptionDetailPage from './components/SubscriptionDetailPage';
 import LandingPage from './components/LandingPage'; // --- NEW: Import the new page ---
+import InsightsPage from './components/InsightsPage';
+import SettingsPage from './components/SettingsPage';
+import ProductsPage from './components/ProductsPage'; // <-- IMPORT
 
 function App() {
   const { user, loading } = useAuth();
@@ -35,12 +38,15 @@ function App() {
             {user ? (
               // --- Logged-In User Routes ---
               <Route path="/" element={<Layout />}>
+                 <Route path="settings" element={<SettingsPage />} />
                 <Route index element={<Dashboard />} />
                 <Route path="notifications" element={<NotificationCenter />} />
                 <Route path="renewals/:timeframe" element={<RenewalsPage />} />
                 <Route path="reports/:timeframe" element={<ReportsPage />} />
                 <Route path="subscriptions/:id" element={<SubscriptionDetailPage />} />
+                 <Route path="insights" element={<InsightsPage />} />
                 <Route path="/auth" element={<Navigate to="/" replace />} />
+                <Route path="products" element={<ProductsPage />} />
               </Route>
             ) : (
               // --- Logged-Out User Routes ---

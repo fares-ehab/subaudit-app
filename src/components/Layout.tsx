@@ -1,16 +1,14 @@
 import React, { useState } from 'react';
-import { Outlet, NavLink } from 'react-router-dom';
-import { CreditCard, Bell, Home, LogOut, User, Settings, X, Menu as MenuIcon, Gift, Star, } from 'lucide-react';
+import { Outlet, NavLink, Link } from 'react-router-dom';
+import { CreditCard, Bell, Home, LogOut, User, Settings, X, Menu as MenuIcon, Gift, Star } from 'lucide-react';
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-hot-toast';
-
-import { useAuth } from '../hooks/useAuth';
-import { signOut } from '../lib/supabase';
+import { useAuth } from '../contexts/AuthProvider';
+import { signOut, supabase } from '../lib/supabase';
 
 const Layout: React.FC = () => {
-  const { user } = useAuth();
-  const subscription = { plan: 'Free' }; // Placeholder
+  const { user, profile } = useAuth();
 
   const [isSignOutModalOpen, setIsSignOutModalOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -58,33 +56,66 @@ const Layout: React.FC = () => {
                     <Gift size={20}/>
                 </button>
 
-                {subscription.plan !== 'Pro' && (
-                    <button className="hidden sm:flex items-center space-x-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:opacity-90 transition-opacity">
-                        <Star size={16}/>
-                        <span>Upgrade to Pro</span>
-                    </button>
+                {profile?.subscription_plan !== "Individual" && (
+                    <Link to="/products" className="hidden sm:flex items-center space-x-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:opacity-90 transition-opacity">
+    <Star size={16}/>
+    <span>Upgrade to Pro</span>
+</Link>
                 )}
 
                 <Menu as="div" className="relative">
-                  <MenuButton className="flex items-center justify-center w-10 h-10 bg-gray-200 rounded-full hover:ring-2 hover:ring-indigo-500 hover:ring-offset-2">
-                    <User className="w-5 h-5 text-gray-600" />
+                  <MenuButton className="flex items-center justify-center w-10 h-10 bg-gray-200 rounded-full hover:ring-2 hover:ring-indigo-500 hover:ring-offset-2 overflow-hidden">
+                    {profile?.avatar_url ? (
+                      <img src={profile.avatar_url} alt="User Avatar" className="w-full h-full object-cover" />
+                    ) : (
+                      <User className="w-5 h-5 text-gray-600" />
+                    )}
                   </MenuButton>
                   <MenuItems transition anchor="bottom end" className="w-64 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 z-30 mt-2">
                     <div className="px-4 py-3 border-b">
-                        <p className="text-sm font-medium text-gray-900 truncate">{user?.email}</p>
-                        <p className={`text-xs font-semibold px-2 py-0.5 rounded-full inline-block mt-1 ${subscription.plan === 'Pro' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
-                            {subscription.plan} Plan
+                        <p className="text-sm font-medium text-gray-900 truncate">{profile?.full_name || user?.email}</p>
+                        <p className={`text-xs font-semibold px-2 py-0.5 rounded-full inline-block mt-1 bg-gray-100 text-gray-800`}>
+                            {profile?.subscription_plan || 'Free Plan'}
                         </p>
                     </div>
                     <div className="py-1">
-                      <MenuItem><a href="#" className="flex w-full items-center gap-2 px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100"><Settings size={16}/>Settings</a></MenuItem>
-                      <MenuItem><a href="#" className="flex w-full items-center gap-2 px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100"><CreditCard size={16}/>Manage Billing</a></MenuItem>
+                      <MenuItem>
+                        <Link to="/settings" className="flex w-full items-center gap-2 px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100"><Settings size={16}/>Settings</Link>
+                      </MenuItem>
+                      <MenuItem> <button 
+    onClick={async () => {
+      const toastId = toast.loading("Redirecting to billing...");
+      try {
+        const siteUrl = import.meta.env.VITE_SITE_URL;
+        if (!siteUrl) throw new Error("Site URL is not configured.");
+
+        // --- THIS IS THE FIX ---
+        // The create-billing-portal-session function expects a 'returnUrl'
+        const { data, error } = await supabase.functions.invoke('create-billing-portal-session', {
+          body: { returnUrl: `${siteUrl}/settings` }
+        });
+        
+        if (error) throw error;
+
+        toast.dismiss(toastId);
+        window.location.href = data.portalUrl;
+      } catch (e: any) {
+        toast.error(e.message, { id: toastId });
+      }
+    }}
+    className="flex w-full items-center gap-2 px-4 py-2 text-sm text-gray-700 data-[focus]:bg-gray-100"
+  >
+    <CreditCard size={16}/>Manage Billing
+  </button>
+</MenuItem>
                       <MenuItem><button onClick={() => setIsSignOutModalOpen(true)} className="flex w-full items-center gap-2 px-4 py-2 text-sm text-red-600 data-[focus]:bg-red-50"><LogOut size={16}/>Sign Out</button></MenuItem>
                     </div>
                   </MenuItems>
                 </Menu>
                 
-                <div className="md:hidden"><button onClick={() => setIsMobileMenuOpen(true)} className="p-2 rounded-md text-gray-600 hover:bg-gray-100"><MenuIcon size={24} /></button></div>
+                <div className="md:hidden">
+                    <button onClick={() => setIsMobileMenuOpen(true)} className="p-2 rounded-md text-gray-600 hover:bg-gray-100"><MenuIcon size={24} /></button>
+                </div>
               </div>
             </div>
           </div>
@@ -93,6 +124,7 @@ const Layout: React.FC = () => {
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8"><Outlet /></main>
       </div>
       
+      {/* Sign Out Modal */}
       <AnimatePresence>
         {isSignOutModalOpen && (
           <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
@@ -109,6 +141,7 @@ const Layout: React.FC = () => {
         )}
       </AnimatePresence>
       
+      {/* Mobile Menu Modal */}
       <AnimatePresence>
         {isMobileMenuOpen && (
             <div className="md:hidden fixed inset-0 z-40">
@@ -121,7 +154,7 @@ const Layout: React.FC = () => {
         )}
       </AnimatePresence>
 
-      {/* --- FIX: Added the missing Changelog Modal --- */}
+      {/* Changelog Modal */}
       <AnimatePresence>
         {isChangelogOpen && (
           <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">

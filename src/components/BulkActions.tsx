@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Trash2, Star, AlertTriangle, PauseCircle, PlayCircle, Loader,  Check } from 'lucide-react';
+import { Trash2, Star, AlertTriangle, PauseCircle, PlayCircle, Loader, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-hot-toast';
 import { bulkUpdateSubscriptions } from '../lib/subscriptions';
@@ -15,7 +15,8 @@ type ActionType = 'cancel' | 'pause' | 'resume' | 'favorite';
 const BulkActions: React.FC<BulkActionsProps> = ({ selectedSubscriptions, onSuccess }) => {
   const [activeAction, setActiveAction] = useState<ActionType | null>(null);
   const [isConfirming, setIsConfirming] = useState(false);
-  
+  const [isExecuting, setIsExecuting] = useState(false); // State for the final API call
+
   const selectedIds = selectedSubscriptions.map(s => s.id);
 
   const totalMonthlyCost = useMemo(() => {
@@ -39,12 +40,15 @@ const BulkActions: React.FC<BulkActionsProps> = ({ selectedSubscriptions, onSucc
 
   const executeAction = async (action: ActionType) => {
     setIsConfirming(false);
+    setIsExecuting(true); // Use the new state
+    
     const toastId = toast.loading(`Processing ${selectedIds.length} subscription(s)...`);
     
     let updates: Partial<Subscription> = {};
     if (action === 'cancel') updates = { is_active: false, cancellation_date: new Date().toISOString() };
     if (action === 'pause') updates = { is_active: false };
     if (action === 'resume') updates = { is_active: true };
+    // 'favorite' would be handled separately if it modifies DB
     
     try {
       await bulkUpdateSubscriptions(selectedIds, updates);
@@ -54,6 +58,7 @@ const BulkActions: React.FC<BulkActionsProps> = ({ selectedSubscriptions, onSucc
       toast.error(error.message || 'An unknown error occurred.', { id: toastId });
     } finally {
       setActiveAction(null);
+      setIsExecuting(false); // Reset the execution state
     }
   };
 
@@ -92,12 +97,12 @@ const BulkActions: React.FC<BulkActionsProps> = ({ selectedSubscriptions, onSucc
             {Object.keys(actionConfig).map((key) => {
                 const action = key as ActionType;
                 const { icon: Icon, label, style } = actionConfig[action];
-                const isProcessing = activeAction === action;
+                const isProcessing = activeAction === action && isExecuting; // Check both states
                 return (
                     <button
                         key={action}
                         onClick={() => handleActionClick(action)}
-                        disabled={!!activeAction}
+                        disabled={!!activeAction || isExecuting} // Disable all buttons when any action is active
                         className={`text-white px-4 py-2 rounded-lg disabled:opacity-50 transition-colors flex items-center space-x-2 ${style}`}
                     >
                         {isProcessing ? <Loader className="w-4 h-4 animate-spin" /> : <Icon className="w-4 h-4" />}
@@ -109,7 +114,7 @@ const BulkActions: React.FC<BulkActionsProps> = ({ selectedSubscriptions, onSucc
         </div>
       </motion.div>
 
-      {/* --- FIX: Modal JSX is now integrated directly into this component --- */}
+      {/* Modal JSX */}
       <AnimatePresence>
         {isConfirming && (
             <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
@@ -126,8 +131,8 @@ const BulkActions: React.FC<BulkActionsProps> = ({ selectedSubscriptions, onSucc
                         <button onClick={() => { setIsConfirming(false); setActiveAction(null); }} className="flex-1 px-4 py-3 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 font-medium">
                             Go Back
                         </button>
-                        <button onClick={() => executeAction('cancel')} disabled={activeAction === 'cancel'} className="flex-1 px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 font-medium flex items-center justify-center">
-                            {activeAction === 'cancel' ? <Loader className="animate-spin" size={20}/> : 'Yes, Cancel'}
+                        <button onClick={() => executeAction('cancel')} disabled={isExecuting} className="flex-1 px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 font-medium flex items-center justify-center">
+                            {isExecuting ? <Loader className="animate-spin" size={20}/> : 'Yes, Cancel'}
                         </button>
                     </div>
                 </motion.div>

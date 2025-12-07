@@ -38,7 +38,7 @@ const Header: React.FC = () => (
         <div className="flex items-center space-x-2">
           <Link to="/auth" className="text-sm font-semibold text-gray-600 hover:text-indigo-600 px-4 py-2">Sign In</Link>
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-            <Link to="/auth" className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-indigo-700 transition-colors shadow-sm">Start Free Trial</Link>
+            <Link to="/auth" className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-indigo-700 transition-colors shadow-sm">Sign up for Free </Link>
           </motion.div>
         </div>
       </div>
@@ -60,7 +60,7 @@ const HeroSection: React.FC = () => (
       </motion.p>
       <motion.div variants={itemVariants} className="mt-10 flex justify-center gap-x-4">
         <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-            <Link to="/auth" className="bg-indigo-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-indigo-700 shadow-lg hover:shadow-indigo-500/50 transition-all">Start Free Trial</Link>
+            <Link to="/auth" className="bg-indigo-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-indigo-700 shadow-lg hover:shadow-indigo-500/50 transition-all">Sign up for Free</Link>
         </motion.div>
         <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
             <Link to="#pricing" className="bg-white text-gray-700 px-6 py-3 rounded-lg font-semibold border hover:bg-gray-50 transition-colors">See Plans</Link>

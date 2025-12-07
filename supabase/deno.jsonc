@@ -1,0 +1,8 @@
+{
+  "lint": {
+    "include": ["functions/"]
+  },
+  "fmt": {
+    "include": ["functions/"]
+  }
+}

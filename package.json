@@ -30,6 +30,7 @@
     "@types/node": "^24.1.0",
     "cypress": "^14.5.3",
     "date-fns": "^4.1.0",
+    "dodopayments": "^2.0.2",
     "framer-motion": "^12.23.12",
     "jest": "^30.0.5",
     "jspdf": "^3.0.1",
